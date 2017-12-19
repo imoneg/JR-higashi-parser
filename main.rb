@@ -105,12 +105,22 @@ def kansu()
   	end
 
   end
-    p rail_data
-  return outstr
+  #  p rail_data
+  #return outstr
+   return rail_data
 end
 #rail_data = Railfactory()
+rails = kansu()
+temp_str = ""
+rails.each do |x| 
+  temp_str += x.name + "駅 "
+  x.trains.each do |y|
+    temp_str += y.train_number.to_s() << " "  
+  end
+  temp_str += "\n"
+end
 get '/' do
-  kansu()
-  @content = "test"
+  #kansu()
+  @content = temp_str
 end
 #kansu()

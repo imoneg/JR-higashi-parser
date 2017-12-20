@@ -190,7 +190,32 @@ def stations_to_LED(stations)
   end
   return str
 end
-get '/' do
+get '/s/chuo-sen' do
   stations = get_info(JR_Line::CHUO_SEN)
-  @content = stations_to_s(stations) + "\n\n" + stations_to_LED(stations)
+  @content = stations_to_s(stations)
+end
+
+get '/l/chuo-sen' do
+  stations = get_info(JR_Line::CHUO_SEN)
+  @content = stations_to_LED(stations)
+end
+
+get '/s/nanbu' do
+  stations = get_info(JR_Line::NANBU)
+  @content = stations_to_s(stations)
+end
+
+get '/l/nanbu' do
+  stations = get_info(JR_Line::NANBU)
+  @content = stations_to_LED(stations)
+end
+
+get '/s/chuo-honsen' do
+  stations = get_info(JR_Line::CHUO_HONSEN)
+  @content = stations_to_s(stations)
+end
+
+get '/l/chuo-honsen' do
+  stations = get_info(JR_Line::CHUO_HONSEN)
+  @content = stations_to_LED(stations)
 end

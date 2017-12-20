@@ -114,17 +114,20 @@ def parse_html(html,charset,line_name)
   			#駅間にいる場合
   			print("#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n")
         #outstr << "#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n"
-        #中央快速線とかでやばいことになるのでどうしようもない
         from = rail_data.index{|stat| stat.name == x["inStFrom"]}
         to = rail_data.index{|stat| stat.name == x["inStTo"]}
+        #いまいち
+        rail_data[ ((from.to_f + to.to_f) / 2.0).round ].addTrain(Train.new(train_number,delay,up))
+        #中央快速線とかでやばいことになるのでどうしようもない
+=begin
         p "from :" + from.to_s + " to :" + to.to_s
-
         if from > to then
           rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} - 1].addTrain(Train.new(train_number,delay,up))
         else
+          if to - from > 2
           rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} + 1].addTrain(Train.new(train_number,delay,up))
         end
-
+=end
   		end
   	end
   end

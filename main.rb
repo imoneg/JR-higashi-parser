@@ -3,7 +3,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'openssl'
 require 'uri'
-
+require './LineData.rb'
 OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 
 class Station
@@ -40,21 +40,6 @@ class Train
 
 end
 
-class JR_StationsData
-  NANBU = ["川崎","尻手","矢向","鹿島田","平間","向河原","武蔵小杉","武蔵中原","武蔵新城","武蔵溝ノ口","津田山","久地","宿河原","登戸","中野島","稲田堤","矢野口","稲城長沼","南多摩","府中本町","分倍河原","西府","谷保","矢川","西国立","立川"].freeze
-end
-
-class JR_LineURL
-  NANBU = 'https://rp.cloudrail.jp/rp/zw01/line_63.html?lineCode=63'
-end
-
-class JR_Line
-  NANBU = {
-    Name: "南武線",
-    URL: JR_LineURL::NANBU,
-    Stations: JR_StationsData::NANBU
-  }
-end
 
 def Railfactory(line)
   raw_stations = line[:Stations]
@@ -91,7 +76,7 @@ def parse_html(html,charset,line_name)
     trains << Hash[URI::decode_www_form(URI::parse(URI.encode(s["href"])).query)]
     trains.last["delay"] = s.text.chomp()
   end
-  p trains
+  #p trains
   trains.each do |x|
     #p x
     delay = 0
@@ -122,12 +107,12 @@ def parse_html(html,charset,line_name)
   		end
   		if(x["inStTo"] == "") then
   			#駅に停車している場合
-  			#print("#{x["inStFrom"]}駅 停車中\n")
+  			print("#{x["inStFrom"]}駅 停車中\n")
         #outstr << "#{x["inStFrom"]}駅 停車中\n"
         rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} ].addTrain(Train.new(train_number,delay,up))
   		else
   			#駅間にいる場合
-  			#print("#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n")
+  			print("#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n")
         #outstr << "#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n"
         rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} + 1].addTrain(Train.new(train_number,delay,up))
   		end
@@ -160,6 +145,6 @@ def stations_to_s(stations)
   return str
 end
 get '/' do
-  stations = get_info(JR_Line::NANBU)
+  stations = get_info(JR_Line::CHUO_SEN)
   @content = stations_to_s(stations)
 end

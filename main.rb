@@ -114,7 +114,16 @@ def parse_html(html,charset,line_name)
   			#駅間にいる場合
   			print("#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n")
         #outstr << "#{x["inStFrom"]}駅-#{x["inStTo"]}駅 走行中\n"
-        rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} + 1].addTrain(Train.new(train_number,delay,up))
+
+        from = rail_data.index{|stat| stat.name == x["inStFrom"]}
+        to = rail_data.index{|stat| stat.name == x["inStTo"]}
+        p "from :" + from.to_s + " to :" + to.to_s
+        if from > to then
+          rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} - 1].addTrain(Train.new(train_number,delay,up))
+        else
+          rail_data[ rail_data.index{|stat| stat.name == x["inStFrom"]} + 1].addTrain(Train.new(train_number,delay,up))
+        end
+
   		end
   	end
   end
@@ -144,7 +153,40 @@ def stations_to_s(stations)
   str += "\n"
   return str
 end
+def stations_to_LED(stations)
+  str = ""
+  stations.each do |station|
+    on_train_up = false
+    on_train_down = false
+    #在線しているか調べる
+    station.trains.each do |train|
+      if(train.up == true) then
+        break if on_train_up
+        on_train_up = true
+      else
+        break if on_train_down
+        on_train_down = true
+      end
+    end
+
+    if on_train_up && on_train_down then
+      str += "10,10,10,"
+      str += "10,10,10"
+    elsif on_train_up then
+      str += "10,10,10,"
+      str += "0,0,0"
+    elsif on_train_down then
+      str += "0,0,0,"
+      str += "10,10,10"
+    else
+      str += "0,0,0,"
+      str += "0,0,0"
+    end
+    str += "\n"
+  end
+  return str
+end
 get '/' do
   stations = get_info(JR_Line::CHUO_SEN)
-  @content = stations_to_s(stations)
+  @content = stations_to_s(stations) + "\n\n" + stations_to_LED(stations)
 end

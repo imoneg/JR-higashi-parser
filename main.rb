@@ -145,6 +145,32 @@ def get_info(line)
   rail_data = parse_html(ary[0],ary[1],line)
   return rail_data
 end
+
+def led_bright(delay)
+  case delay
+  when 0 then
+    "10,10,10"
+  when 1..5 then
+    "15,10,10"
+  when 6..10 then
+    "20,10,10"
+  when 11..30 then
+    "30,8,8"
+  when 31..59 then
+    "35,5,5"
+  when 60..Float::INFINITY then
+    "40,0,0"
+  else
+    "0,0,10"
+  end
+end
+def station_list_to_s(stations)
+  str = ""
+  stations.each_with_index do |station, i|
+    str += i.to_s + " " + station.name + "\n"
+  end
+  return str
+end
 def stations_to_s(stations)
   str = ""
   stations.each do |station|
@@ -157,31 +183,37 @@ def stations_to_s(stations)
   str += "\n"
   return str
 end
+
 def stations_to_LED(stations)
   str = ""
   stations.each do |station|
     on_train_up = false
     on_train_down = false
+    up_delay = 0
+    down_delay = 0
     #在線しているか調べる
     station.trains.each do |train|
       if(train.up == true) then
         break if on_train_up
         on_train_up = true
+        up_delay = train.delay_time
       else
         break if on_train_down
         on_train_down = true
+        down_delay = train.delay_time
       end
     end
 
     if on_train_up && on_train_down then
-      str += "10,10,10,"
-      str += "10,10,10"
+
+      str += led_bright(up_delay) + ","
+      str += led_bright(down_delay)
     elsif on_train_up then
-      str += "10,10,10,"
+      str += led_bright(up_delay) + ","
       str += "0,0,0"
     elsif on_train_down then
       str += "0,0,0,"
-      str += "10,10,10"
+      str += led_bright(down_delay)
     else
       str += "0,0,0,"
       str += "0,0,0"
@@ -198,6 +230,11 @@ end
 get '/l/chuo-sen' do
   stations = get_info(JR_Line::CHUO_SEN)
   @content = stations_to_LED(stations)
+end
+
+get '/e/nanbu' do
+  stations = Railfactory(JR_Line::NANBU)
+  @content = station_list_to_s(stations)
 end
 
 get '/s/nanbu' do

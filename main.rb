@@ -8,7 +8,7 @@ OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 
 class Station
   attr_accessor :name, :number, :trains
-
+#コメントを入れる
   def initialize(name,number)
     @name = name
     @number = number
